@@ -1,21 +1,84 @@
 import { useState , useRef } from "react";
+
 import Header from "./Header";
 import { checkValidateData } from "../utils/validate";
+import { createUserWithEmailAndPassword , signInWithEmailAndPassword, updateProfile } from "firebase/auth";
+import {auth} from "../utils/firebase";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utils/userSlice";
+import { BG } from "../utils/constatnts";
 
 const Login = () => {
-
+  
+  const dispatch=useDispatch();
   const [isSignInForm, setIsSignInForm] = useState(true);
   const [errorMessage, setErrorMessage]=useState(null);
 const email=useRef(null);
 const password=useRef(null);
+const name=useRef(null)
+//const name=useRef(null)
 
   const handleButtonClick = () =>{
+    
     // validating the form data
    
      const msg=checkValidateData(email.current.value , password.current.value)
      setErrorMessage(msg);
+     if(msg) return;
 
-  }
+     //SING IN SIGN UP LOGIC
+     if(!isSignInForm){
+      //Sign up logic
+      createUserWithEmailAndPassword(auth, email.current.value , password.current.value)
+  .then((userCredential) => {
+    // Signed up 
+    const user = userCredential.user;
+    updateProfile(user, {
+      displayName: name.current.value, 
+      photoURL: "https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png"
+    }).then(() => {
+      const {uid , email , displayName , photoURL} = auth.currentUser;
+      dispatch(addUser({ uid: uid , 
+        email: email , 
+        displayName : displayName,
+         photoURL: photoURL}));
+
+      
+    }).catch((error) => {
+      setErrorMessage(error.message)
+    });
+   
+    
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    setErrorMessage(errorCode+"-"+errorMessage);
+  });
+
+     }
+
+//   ---------Sign in logic---------------------------
+     else {
+      //Sign in logic
+      signInWithEmailAndPassword(auth, email.current.value , password.current.value)
+      .then((userCredential) => {
+        // Signed in 
+        const user = userCredential.user;
+         
+      
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        setErrorMessage(errorCode+"-"+errorMessage);
+      });
+    
+
+     }
+
+
+  };
 
   const toggleSignIn = () =>{
 setIsSignInForm(!isSignInForm);
@@ -24,7 +87,7 @@ setIsSignInForm(!isSignInForm);
     <div>
       <Header/>
       <div className="absolute">
-      <img src="https://assets.nflxext.com/ffe/siteui/vlv3/9c5457b8-9ab0-4a04-9fc1-e608d5670f1a/710d74e0-7158-408e-8d9b-23c219dee5df/IN-en-20210719-popsignuptwoweeks-perspective_alpha_website_small.jpg"
+      <img src={BG}
       alt="backgorund"/>
       </div>
       <form onSubmit={(e) => e.preventDefault() } className="w-4/12 absolute p-12 bg-black  my-20 mx-auto right-0 left-0 text-white rounded-lg  bg-opacity-80">
@@ -35,7 +98,7 @@ setIsSignInForm(!isSignInForm);
        
         {! isSignInForm &&
          (<input 
-         
+         ref={name}
           type="text" placeholder="Full Name"
           className="p-3 my-4 w-full bg-gray-700 rounded-lg "/>
           )}
