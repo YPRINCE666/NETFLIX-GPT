@@ -10,6 +10,15 @@ reducers :{
     addNowPlayingMovies : (state,action)=>{
         state.nowPlayingMovies =action.payload;
     },
+    addpopularMovies : (state,action)=>{
+        state.popularMovies =action.payload;
+    },
+    addtopRatedMovies : (state,action)=>{
+        state.topRatedMovies=action.payload;
+    },
+    addtvShows : (state,action)=>{
+        state.tvShows=action.payload;
+    },
     addTrailerVideo : (state,action)=>{
         state.trailerVideo =action.payload;
     },
@@ -17,6 +26,6 @@ reducers :{
 },
 }
 );
- export const { addNowPlayingMovies, addTrailerVideo }= moviesSlice.actions;
+ export const { addNowPlayingMovies, addTrailerVideo ,addpopularMovies, addtopRatedMovies,addtvShows  }= moviesSlice.actions;
 
  export default moviesSlice.reducer;
